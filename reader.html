@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<style>
+
+.node {
+  font: 10px sans-serif;
+}
+
+.link {
+  stroke: steelblue;
+  stroke-opacity: 0.5;
+  fill: none;
+  pointer-events: none;
+}
+
+</style>
+<body>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+var diameter = 960,
+    radius = diameter / 2,
+    innerRadius = radius - 120;
+
+var cluster = d3.cluster()
+    .size([360, innerRadius]);
+
+var line = d3.radialLine()
+    .curve(d3.curveBundle.beta(0.85))
+    .radius(function(d) { return d.y; })
+    .angle(function(d) { return d.x / 180 * Math.PI; });
+
+var svg = d3.select("body").append("svg")
+    .attr("width", diameter)
+    .attr("height", diameter)
+  .append("g")
+    .attr("transform", "translate(" + radius + "," + radius + ")");
+
+var link = svg.append("g").selectAll(".link"),
+    node = svg.append("g").selectAll(".node");
+
+d3.json("maindata.json", function(error, data) {
+    if (error) throw error;
+    //data.forEach(function(d){
+        //console.log(d["neighbor"]);
+    //})
+
+    movie = movie2classes(data);
+    console.log(movie);
+    
+
+
+})
+
+function creditsToClasses( credits){
+ var classArray = [];
+
+ for( var column =0; column < credits.columns.length; column++){
+	 var classObj = {};
+	 classObj.name =  credits.columns[column];
+	 classObj.size = 1;
+	 classObj.imports=[];
+	 classArray.push(classObj);
+ }
+ for(var row =1; row < credits.length; row++){
+ 	var classObj = {};
+	var contributor = credits[row];
+	classObj.name = contributor["FULL NAME"];
+	classObj.imports=[];
+
+	var size =1;
+	for( var column = 0; column < credits.columns.length;column++){
+		if( contributor[credits.columns[column]]==1){
+			classObj.imports.push(credits.columns[column]) ;
+			size++;
+		}
+	}
+	classObj.size = size;
+
+	classArray.push(classObj);
+
+ }
+ return classArray;
+}
+
+function movie2classes(movies){
+    var classArray = [];
+    movies.forEach(function(d){
+        var classObj = {};
+        classObj.name = d['id'];
+        classObj.imports = d['neighbor'];
+        classObj.size = d['neighbor'].length;
+        //console.log(d["neighbor"]);
+        classArray.push(classObj);
+    })
+    return classArray;
+}
+
+</script>
