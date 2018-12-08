@@ -74,8 +74,8 @@
     
     <script>
 
-        var h = 745
-	        w = 745
+        var h = 900
+	        w = 1000
 
 function BarChart (container) {
     var defaults = {
@@ -184,7 +184,7 @@ function BarChart (container) {
 function ScatterPlot (div){
 
     var x = d3.time.scale().domain([new Date('1996-1-1'), new Date('2018-10-31')]).range([0,w]).nice(),
-        y = d3.scale.linear().range([h,0]).domain([0, 5.2]).nice(),
+        y = d3.scale.linear().range([h,0]).domain([0, 5.5]).nice(),
         xAxis = d3.svg.axis().scale(x).orient('bottom'),
         yAxis = d3.svg.axis().scale(y).orient('left'),
 
@@ -256,12 +256,12 @@ function ScatterPlot (div){
 
     model.when(['width', 'height', 'data', 'xField', 'yField'], function (width, height, data, xField, yField) {
 
-/*         // Updated the scales
+        // Updated the scales
         x.domain(d3.extent(data, function(d) { return d[xField]; })).nice();
-        y.domain(d3.extent(data, function(d) { return d[yField]; })).nice();
+        y.domain([0, 5.5]).nice();
 
         x.range([0, width]);
-        y.range([height, 0]); */
+        y.range([height, 0]);
 
         // update the quadtree
         quadtree = d3.geom.quadtree()
