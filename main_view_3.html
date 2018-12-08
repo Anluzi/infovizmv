@@ -117,10 +117,12 @@ d3.json("maindata.json", function(error, movies) {
     .data(root.leaves())
     .enter().append('g')
     .attr('class', 'node')
+    .attr('id', function(d){return d.data.name})
     .attr('transform', function (d) { return 'translate(' + xAccessor(d) + ',' + yAccessor(d) + ')'; })
     .on("mouseover", mouseovered)
     //.on("mouseout", mouseouted)
-    .on("click", mouseclick);
+    .on("click", mouseclick)
+    .on("dblclick", movieView);
     //.on("click", function(d){
     //    console.log("HI");
     //});
@@ -163,10 +165,11 @@ d3.json("maindata.json", function(error, movies) {
 
     node.append('text')
         .attr('dy', '0.32em')
+        .attr('id', function(d){ return d.data.name})
         .attr('x', function (d) { return d.x < 180 ? 6 : -6; })
         .style('text-anchor', function (d) { return d.x < 180 ? 'start' : 'end'; })
         .attr('transform', function (d) { return 'rotate(' + (d.x < 180 ? d.x - 90 : d.x + 90) + ')'; })
-        .text(function (d) { return d.data.title + " id: " + d.data.id; });
+        .text(function (d) { return d.data.title + " id: " + d.data.name; });
     
 
     var legend = canvas.selectAll(".legend")
@@ -455,6 +458,10 @@ function movie2classes(movies){
         classArray.push(classObj);
     })
     return classArray;
+}
+
+function movieView(){
+  window.open("./main_view.html" + "?i=" + this.id, "_blank");
 }
 
 
