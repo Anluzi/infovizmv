@@ -82,9 +82,8 @@ var line = d3.radialLine()
 var canvas = d3.select("body").append("svg")
                .classed('container', true)
                .attr('width', '100%')
-               .attr('height', 20000)
+               .attr('height', 21000)
 
-//var svg = d3.select("body").append("svg")
 svg = canvas.append('svg')
     .attr("width", diameter+600)
     .attr("height", diameter+600)
@@ -120,39 +119,11 @@ d3.json("maindata.json", function(error, movies) {
     .attr('id', function(d){return d.data.name})
     .attr('transform', function (d) { return 'translate(' + xAccessor(d) + ',' + yAccessor(d) + ')'; })
     .on("mouseover", mouseovered)
-    //.on("mouseout", mouseouted)
     .on("click", mouseclick)
     .on("contextmenu", function (d, i) {
             FIX = false;})
            // react on right-clicking
     .on("dblclick", movieView);
-    //.on("click", function(d){
-    //    console.log("HI");
-    //});
-    
-    /* .on('mouseover', function (d) {
-      node.style('fill', null);
-      d3.select(this).selectAll('circle').style('fill', 'black');
-      var nodesToHighlight = paths.map(function (e) { return e[0] === d ? e[e.length-1] : e[e.length-1] === d ? e[0] : 0})
-        .filter(function (d) { return d; });
-      node.filter(function (d) { return nodesToHighlight.indexOf(d) >= 0; })
-        .selectAll('circle')
-        .style('fill', '#555');
-      link
-        .style('stroke-opacity', function (link_d) {
-          return link_d[0] === d | link_d[link_d.length - 1] === d ? 1 : null;
-        })
-        .style('stroke', function (link_d) {
-          return link_d[0] === d | link_d[link_d.length - 1] === d ? '#d62333' : null;
-        });
-    })
-    .on('mouseout', function (d) {
-      link
-        .style('stroke-opacity', null)
-        .style('stroke', null);
-      node.selectAll('circle')
-        .style('fill', null);
-    }); */
 
     node.append('circle')
         .attr("class", "circle")
@@ -227,49 +198,7 @@ d3.json("maindata.json", function(error, movies) {
                          return d.text;
                      })
     optiongroup.append('br')
-    
-    /* var toggle = d3.select(".toggleButtons")
-                    .selectAll("button")
-                    .data(["average rate", "genre"])
-                    .enter()
-                    .append("button")
-                    .text(function(d){
 
-                    }) */
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  /* node = node
-          .data(root.leaves())
-          .enter().append("g")
-            .attr("class", "node")
-            .on("mouseover", mouseovered)
-            .on("mouseout", mouseouted);
-  
-  node.append('circle').attr('r', 4)
-      .append('title')
-      .text(function(d){
-        return d.data.title;
-      })
-      //.attr("fill", "blue")
-  node.append('text')
-      .attr("dy", "0.31em")
-      .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
-      .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-      .text(function(d) { 
-		if( d.data.key != "FULL NAME")
-      console.log(d.data);
-			return d.data.title; 
-	  }) */
 });
 
 function change() {
@@ -278,9 +207,6 @@ function change() {
     if (value == "avg rate") {
         d3.selectAll("circle")
         .style("fill", function(d){
-            //console.log(d.data.genre);
-            //console.log(d.data.avgrate);
-            //return color(d.data.genre);
             return colorSequential(d.data.avgrate);
     })}
 
@@ -314,12 +240,6 @@ function mouseovered(d) {
             return n.source;
         })
   }
-  
-      //.classed("node--source", function(n) { 
-      //    console.log(n)
-      //    console.log("node source get called!");
-      //    return n.source; })
-      //.classed("node--source", d);
 }
 
 function mouseclick(d) {
@@ -343,11 +263,6 @@ function mouseclick(d) {
       .classed("node--target", function(n) {
           return n.source;
       })
-      //.classed("node--source", function(n) { 
-      //    console.log(n)
-      //    console.log("node source get called!");
-      //    return n.source; })
-      //.classed("node--source", d);
 }
 
 function mouseouted(d) {

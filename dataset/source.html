@@ -318,6 +318,7 @@ function ScatterPlot (div){
 // The main program that assembles the linked views.
 
 function main(){
+    var QUERY = false;
 
     // Grab the container div from the DOM.
     var div = document.getElementById('container'),
@@ -407,6 +408,31 @@ function main(){
                             rating[id].push({'time': time, 'rate': rate, 'id': d.userId})
                         })
 
+                        var val = getQueryVariable('i');
+                            imdb = movieid[val]
+                            url = 'http://img.omdbapi.com/?i=tt' + imdb + '&apikey=e1031f0d'
+                            name = movie[val]
+                        document.getElementById('name').innerHTML = name
+                        t_rate = rating[val]
+                            
+                            img = document.createElement('img')
+                        img.url = url;
+                            
+                        var slot = document.getElementById('photo')
+                            pic = d3.select(slot).append('svg').style('position', 'absolute')
+
+                        pic.append("svg:image")
+                                .attr('x', -9)
+                                .attr('y', -12)
+                                .attr('width', 200)
+                                .attr('height', 150)
+                                .attr("xlink:href", url)
+                            
+                            setSizes();
+                            scatterPlot.data = t_rate;
+
+
+
                         document.getElementById('btn').onclick = function() {
 
                             var val = document.getElementById('id').value;
@@ -456,6 +482,22 @@ function main(){
         height: div.clientHeight
         };
     }
+
+    function getQueryVariable(variable) {
+        QUERY = true;
+        var query = window.location.search.substring(1);
+        var vars = query.split('&');
+        for (var i = 0; i < vars.length; i++){
+            var pair = vars[i].split('=')
+            if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+
+            }
+            console.log("Query variable %s not found" ,variable);
+        }
+        }
+    test_var = getQueryVariable('i');
+    console.log("this is test var ", test_var);
     }
     main();
 
