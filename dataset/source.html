@@ -74,8 +74,8 @@
     
     <script>
 
-        var h = 900
-	        w = 1000
+        var h = 745
+	        w = 745
 
 function BarChart (container) {
     var defaults = {
@@ -184,7 +184,7 @@ function BarChart (container) {
 function ScatterPlot (div){
 
     var x = d3.time.scale().domain([new Date('1996-1-1'), new Date('2018-10-31')]).range([0,w]).nice(),
-        y = d3.scale.linear().range([h,0]).domain([0, 5]).nice(),
+        y = d3.scale.linear().range([h,0]).domain([0, 5.2]).nice(),
         xAxis = d3.svg.axis().scale(x).orient('bottom'),
         yAxis = d3.svg.axis().scale(y).orient('left'),
 
@@ -256,12 +256,12 @@ function ScatterPlot (div){
 
     model.when(['width', 'height', 'data', 'xField', 'yField'], function (width, height, data, xField, yField) {
 
-        // Updated the scales
+/*         // Updated the scales
         x.domain(d3.extent(data, function(d) { return d[xField]; })).nice();
         y.domain(d3.extent(data, function(d) { return d[yField]; })).nice();
 
         x.range([0, width]);
-        y.range([height, 0]);
+        y.range([height, 0]); */
 
         // update the quadtree
         quadtree = d3.geom.quadtree()
@@ -277,7 +277,7 @@ function ScatterPlot (div){
         dots = dotsG.selectAll('.dot').data(data);
         dots.enter().append('circle')
         .attr('class', 'dot')
-        .attr('r', 3.5);
+        .attr('r', 3);
         dots
         .attr('cx', function(d) { return x(d[xField]); })
         .attr('cy', function(d) { return y(d[yField]); });
@@ -299,17 +299,17 @@ function ScatterPlot (div){
     function search(x0, y0, x3, y3) {
         var selectedData = [];
         quadtree.visit(function(node, x1, y1, x2, y2) {
-        var d = node.point, x, y;
-        if (d) {
-            x = node.x;
-            y = node.y;
-            d.visited = true;
-            if(x >= x0 && x < x3 && y >= y0 && y < y3){
-            d.selected = true;
-            selectedData.push(d);
+            var d = node.point, x, y;
+            if (d) {
+                x = node.x;
+                y = node.y;
+                d.visited = true;
+                if(x >= x0 && x < x3 && y >= y0 && y < y3){
+                d.selected = true;
+                selectedData.push(d);
+                }
             }
-        }
-        return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
+            return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
         });
         return selectedData;
     }
