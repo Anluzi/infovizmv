@@ -9,6 +9,10 @@
 
 .node:hover {
   fill: #000;
+  font-size: 30px;
+}
+.node:click {
+  fill: #000;
 }
 
 .link {
@@ -30,6 +34,7 @@
 
 .node--target {
   fill: #0a128d;
+  font-size: 30px;
 }
 
 .link--source,
@@ -46,17 +51,23 @@
   stroke: #36818b;
 }
 
+#optiong {
+  position: absolute;
+  top: 20px;
+  left: 1px;
+}
+
 </style>
 <body>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="//d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
 <script>
-
+var FIX = false;
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 var colorSequential = d3.scaleSequential(d3.interpolateBlues)
                         .domain([0,5]);
 console.log(colorSequential(3.25));
-var diameter = 900,
+var diameter = 1600,
     radius = diameter / 2,
     innerRadius = radius - 200;
 
@@ -68,9 +79,15 @@ var line = d3.radialLine()
     .radius(function(d) { return d.y; })
     .angle(function(d) { return d.x / 180 * Math.PI; });
 
-var svg = d3.select("body").append("svg")
-    .attr("width", diameter+300)
-    .attr("height", diameter+300)
+var canvas = d3.select("body").append("svg")
+               .classed('container', true)
+               .attr('width', '100%')
+               .attr('height', 2000)
+
+//var svg = d3.select("body").append("svg")
+svg = canvas.append('svg')
+    .attr("width", diameter+600)
+    .attr("height", diameter+600)
   .append("g")
     .attr("transform", "translate(" + radius + "," + radius + ")");
 
@@ -95,14 +112,15 @@ d3.json("maindata.json", function(error, movies) {
       .attr("class", "link")
       .attr("d", line);
 
-  var node = svg.selectAll('.node')
+  //var node = svg.selectAll('.node')
+  node = node
     .data(root.leaves())
     .enter().append('g')
     .attr('class', 'node')
     .attr('transform', function (d) { return 'translate(' + xAccessor(d) + ',' + yAccessor(d) + ')'; })
     .on("mouseover", mouseovered)
     //.on("mouseout", mouseouted)
-    //.on("click", mouseovered);
+    .on("click", mouseclick);
     //.on("click", function(d){
     //    console.log("HI");
     //});
@@ -133,10 +151,9 @@ d3.json("maindata.json", function(error, movies) {
 
     node.append('circle')
         .attr("class", "circle")
-        .attr('r', 4)
+        .attr('r', 6)
         .style("fill", function(d){
             //console.log(d.data.genre);
-            console.log(d.data.avgrate);
             return color(d.data.genre);
             //return colorSequential(d.data.avgrate);
         })
@@ -149,22 +166,23 @@ d3.json("maindata.json", function(error, movies) {
         .attr('x', function (d) { return d.x < 180 ? 6 : -6; })
         .style('text-anchor', function (d) { return d.x < 180 ? 'start' : 'end'; })
         .attr('transform', function (d) { return 'rotate(' + (d.x < 180 ? d.x - 90 : d.x + 90) + ')'; })
-        .text(function (d) { return d.data.avgrate; });
+        .text(function (d) { return d.data.title + " id: " + d.data.id; });
     
 
-    var legend = svg.selectAll(".legend")
+    var legend = canvas.selectAll(".legend")
                                 .data(color.domain())
                                 .enter()
                                 .append("g")
                                 .attr("class", "legend")
+                                .attr("size", 10, 10)
                                 .attr("transform", function(d,i){
-                                    return "translate(0," + i*20 + ")";
+                                    return "translate(0," + i*40 + ")";
                                 });
         
         legend.append("rect")
               .attr("x", diameter - 18)
-              .attr("width", 18)
-              .attr("height",18)
+              .attr("width", 36)
+              .attr("height",36)
               .style("fill", color);
         
         legend.append("text")
@@ -178,27 +196,31 @@ d3.json("maindata.json", function(error, movies) {
     
 
     var selectionList = [
-        {"text": "avg rate"},
         {"text": "genre"},
+        {"text": "avg rate"},
     ]
 
-    var body = d3.select("body");
-    var span = body.append("span")
-                    .text("Select coloring scheme");
-    var option = body.append("select")
+    var optiongroup = d3.select("body")
+                        .append('g')
+                        .attr("id", "optiong");
+    var span = optiongroup.append("span")
+                    .text("Select coloring scheme")
+                    .style('font-size',30);
+    var option = optiongroup.append("select")
                      .attr("id", "option")
                      .on("change", change)
                      .selectAll("option")
                      .data(selectionList)
                      .enter()
                      .append("option")
+                     .attr("font-size", "30px")
                      .attr("value", function(d){
                          return d.text;
                      })
                      .text(function(d){
                          return d.text;
                      })
-    body.append('br')
+    optiongroup.append('br')
     
     /* var toggle = d3.select(".toggleButtons")
                     .selectAll("button")
@@ -265,12 +287,44 @@ function change() {
 }
 
 function mouseovered(d) {
+  console.log("this is Fix", FIX);
+  if (FIX == false){
+    node
+        .each(function(n) {
+            n.target = n.source = false; });
+
+    link
+        .classed("link--target", function(l) {
+            if (l.target === d) return l.source.source = true; })
+        .classed("link--source", function(l) { if (l.source === d) return l.target.target = true; })
+        //.filter(function(l) { return l.target === d; })
+      .filter(function(l) { return l.target === d || l.source === d; })
+        .raise();
+
+    node
+        .classed("node--target", function(n) {
+            return n.target; })
+        .classed("node--target", function(n) {
+            return n.source;
+        })
+  }
+  
+      //.classed("node--source", function(n) { 
+      //    console.log(n)
+      //    console.log("node source get called!");
+      //    return n.source; })
+      //.classed("node--source", d);
+}
+
+function mouseclick(d) {
+
+  FIX = true;
   node
-      .each(function(n) { 
+      .each(function(n) {
           n.target = n.source = false; });
 
   link
-      .classed("link--target", function(l) { 
+      .classed("link--target", function(l) {
           if (l.target === d) return l.source.source = true; })
       .classed("link--source", function(l) { if (l.source === d) return l.target.target = true; })
       //.filter(function(l) { return l.target === d; })
@@ -278,12 +332,16 @@ function mouseovered(d) {
       .raise();
 
   node
-      .classed("node--target", function(n) { 
-          console.log(n)
+      .classed("node--target", function(n) {
           return n.target; })
-      .classed("node--source", function(n) { 
-          console.log(n)
-          return n.source; });
+      .classed("node--target", function(n) {
+          return n.source;
+      })
+      //.classed("node--source", function(n) { 
+      //    console.log(n)
+      //    console.log("node source get called!");
+      //    return n.source; })
+      //.classed("node--source", d);
 }
 
 function mouseouted(d) {
@@ -311,6 +369,7 @@ function packageHierarchy(classes) {
         node.title = data.title;
         node.genre = data.genre;
         node.avgrate = data.avgrate;
+        node.id = data.id;
         //console.log(node);
       }
     }
