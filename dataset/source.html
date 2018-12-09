@@ -5,8 +5,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
 
-    <!-- A functional reactive model library. github.com/curran/model -->
+    <!-- A functional reactive model library found online. -->
     <script src="http://curran.github.io/model/cdn/model-v0.2.4.js"></script>
+
     <style>
 
       #container {
@@ -68,19 +69,20 @@
     </form>
     <div id="photo">
         <p lang="en-us"><strong><span id='name'></span></strong></p>
+        <p lang="en-us"><span id='information'></span></p>
     </div>
     
     <div id="container"></div>
     
     <script>
 
-        var h = 900
-	        w = 1000
+        var h = 400
+	        w = 500
 
 function BarChart (container) {
     var defaults = {
             margin: {
-            top: 20,
+            top: 50,
             right: 20,
             bottom: 30,
             left: 40
@@ -253,7 +255,6 @@ function ScatterPlot (div){
         .call(brush.event);
     });
 
-
     model.when(['width', 'height', 'data', 'xField', 'yField'], function (width, height, data, xField, yField) {
 
         // Updated the scales
@@ -334,7 +335,7 @@ function main(){
         yField: 'rate',
         xLabel: 'time',
         yLabel: 'rate',
-        margin: { 'top': 40, 'right': 20, 'bottom': 30, 'left': 40 }
+        margin: { 'top': 100, 'right': 20, 'bottom': 30, 'left': 40 }
     });
 
     // Configure the bar chart to use the aggregated rating data.
@@ -342,7 +343,7 @@ function main(){
         xAttribute: 'rate',
         yAttribute: 'count',
         yAxisLabel: 'number of rate',
-        margin: { 'top': 20, 'right': 20, 'bottom': 30, 'left': 40 }
+        margin: { 'top': 70, 'right': 20, 'bottom': 30, 'left': 40 }
     });
 
     // Compute the aggregated rating data in response to brushing
@@ -371,96 +372,105 @@ function main(){
 
     // Load the data.
     d3.csv("links.csv", function(error, data){
-                if (error) throw error;
+        if (error) throw error;
 
-                var movieid = {}
-                data.forEach(function(d) {
-                    var imdb = d.imdbId
-                        mv = d.movieId
-                    movieid[mv] = imdb
-                })     
-                
-                d3.csv("movies.csv", function(error, data){
+        var movieid = {}
+        data.forEach(function(d) {
+            var imdb = d.imdbId
+                mv = d.movieId
+            movieid[mv] = imdb
+        })     
+        
+        d3.csv("movies.csv", function(error, data){
+            if (error) throw error;
+            
+            var movie = {}
+            data.forEach(function(d) {
+                var id = d.movieId
+                    name = d.title
+                    genres = d.genres
+                movie[id] = {"name": name, "genres": genres}
+            })
+            
+                d3.csv('ratings.csv', function(error, data) {
                     if (error) throw error;
-                    
-                    var movie = {}
+
+                    var rating = {}
+
+                    for (var i=1; i < 193610; i++) {
+                        rating[i] = []
+                    }
+
                     data.forEach(function(d) {
                         var id = d.movieId
-                            name = d.title
-                        movie[id] = name
+                            rate = d.rating
+                            t = d.timestamp
+                            time = new Date('1970-1-1')
+                            time.setSeconds(t)
+                        rating[id].push({'time': time, 'rate': rate, 'id': d.userId})
                     })
-                    
-                    d3.csv('ratings.csv', function(error, data) {
-                        if (error) throw error;
 
-                        var rating = {}
+                var val = getQueryVariable('i');
+                        imdb = movieid[val]
+                        url = 'http://img.omdbapi.com/?i=tt' + imdb + '&apikey=e1031f0d'
+                        name = movie[val].name
+                        genres = 'Genres: ' + movie[val].genres
 
-                        for (var i=1; i < 193610; i++) {
-                            rating[i] = []
-                        }
+                    document.getElementById('name').innerHTML = name
+                    document.getElementById('genres').innerHTML = genres
 
-                        data.forEach(function(d) {
-                            var id = d.movieId
-                                rate = d.rating
-                                t = d.timestamp
-                                time = new Date('1970-1-1')
-                                time.setSeconds(t)
-                            rating[id].push({'time': time, 'rate': rate, 'id': d.userId})
-                        })
+                    t_rate = rating[val]
+                        
+                        img = document.createElement('img')
+                    img.url = url;
+                        
+                    var slot = document.getElementById('photo')
+                        pic = d3.select(slot).append('svg').style('position', 'absolute')
 
-                        var val = getQueryVariable('i');
+                    pic.append("svg:image")
+                            .attr('x', -15)
+                            .attr('y', -15)
+                            .attr('width', 200)
+                            .attr('height', 200)
+                            .attr("xlink:href", url)
+                        
+                        setSizes();
+                        scatterPlot.data = t_rate; 
+
+                    document.getElementById('btn').onclick = function() {
+
+                        var val = document.getElementById('id').value;
                             imdb = movieid[val]
                             url = 'http://img.omdbapi.com/?i=tt' + imdb + '&apikey=e1031f0d'
-                            name = movie[val]
+                            name = movie[val].name
+                            information = 'Genres: ' + movie[val].genres
+
+
                         document.getElementById('name').innerHTML = name
+                        document.getElementById('information').innerHTML = information
+
                         t_rate = rating[val]
-                            
+                        
                             img = document.createElement('img')
                         img.url = url;
-                            
+                        
                         var slot = document.getElementById('photo')
                             pic = d3.select(slot).append('svg').style('position', 'absolute')
 
                         pic.append("svg:image")
-                                .attr('x', -9)
-                                .attr('y', -12)
-                                .attr('width', 200)
+                                .attr('x', -15)
+                                .attr('y', -15)
+                                .attr('width', 120)
                                 .attr('height', 150)
                                 .attr("xlink:href", url)
-                            
-                            setSizes();
-                            scatterPlot.data = t_rate;
-
-
-
-                        document.getElementById('btn').onclick = function() {
-
-                            var val = document.getElementById('id').value;
-                                imdb = movieid[val]
-                                url = 'http://img.omdbapi.com/?i=tt' + imdb + '&apikey=e1031f0d'
-                                name = movie[val]
-                            document.getElementById('name').innerHTML = name
-                            t_rate = rating[val]
-                            
-                                img = document.createElement('img')
-                            img.url = url;
-                            
-                            var slot = document.getElementById('photo')
-                                pic = d3.select(slot).append('svg').style('position', 'absolute')
-
-                            pic.append("svg:image")
-                                    .attr('x', -9)
-                                    .attr('y', -12)
-                                    .attr('width', 200)
-                                    .attr('height', 150)
-                                    .attr("xlink:href", url)
-                            
-                            setSizes();
-                            scatterPlot.data = t_rate;
-                            }
-                        })
+                        
+                        setSizes();
+                        scatterPlot.data = t_rate;
+                        }
                     })
-                });
+                /* }); */
+            })
+        });
 
     // Sets the `box` property on each visualization
     // to arrange them within the container div.
