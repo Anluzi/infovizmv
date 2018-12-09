@@ -414,10 +414,10 @@ function main(){
                         imdb = movieid[val]
                         url = 'http://img.omdbapi.com/?i=tt' + imdb + '&apikey=e1031f0d'
                         name = movie[val].name
-                        genres = 'Genres: ' + movie[val].genres
+                        information = 'Genres: ' + movie[val].genres
 
                     document.getElementById('name').innerHTML = name
-                    document.getElementById('genres').innerHTML = genres
+                    document.getElementById('information').innerHTML = information
 
                     t_rate = rating[val]
                         
